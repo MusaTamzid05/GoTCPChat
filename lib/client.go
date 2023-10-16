@@ -10,10 +10,11 @@ import (
 
 type Client struct {
     serverConn net.Conn
+    clientRunning bool
 }
 
 func NewClient(serverAddr string) (*Client, error) {
-    client := Client{}
+    client := Client{clientRunning: false}
 
     connection, err := net.Dial("tcp", serverAddr)
 
@@ -30,9 +31,9 @@ func (c *Client) Start() {
     fmt.Println("Client is running")
     go c.Listen()
 
-    clientRunning := true
+    c.clientRunning = true
 
-    for clientRunning {
+    for c.clientRunning {
         newMessage, err := bufio.NewReader(os.Stdin).ReadString('\n')
 
         if err != nil {
@@ -51,14 +52,13 @@ func (c *Client) Start() {
 
 
 func (c* Client) Listen() {
-    connectionRunning := true
 
-    for connectionRunning {
+    for c.clientRunning {
         newMessage, err := bufio.NewReader(c.serverConn).ReadString('\n')
 
         if err != nil {
             fmt.Println(err)
-            connectionRunning = false
+            c.clientRunning = false
 
         }
 
