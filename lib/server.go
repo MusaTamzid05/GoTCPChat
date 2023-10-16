@@ -3,6 +3,7 @@ package lib
 import (
     "net"
     "fmt"
+    "bufio"
 )
 
 type Server struct {
@@ -14,7 +15,6 @@ type Server struct {
 func NewServer(addr string) (*Server, error) {
     server := Server{}
 
-    addr = ":" + addr
     server.addr = addr
 
     listener , err := net.Listen("tcp", addr)
@@ -50,8 +50,28 @@ func (s *Server) Start() {
 }
 
 func (s *Server) handleClient(conn net.Conn) {
+    clientRunning := true
 
-    fmt.Println("Handle client")
+    for clientRunning {
+
+        clientMessage , err := bufio.NewReader(conn).ReadString('\n')
+
+        if err != nil {
+
+            if err.Error() == "EOF" {
+                fmt.Println("Connection close")
+            } else {
+                fmt.Println(err)
+            }
+
+            clientRunning = false
+            continue
+
+        }
+
+        fmt.Print(clientMessage)
+
+    }
 
 
 }
