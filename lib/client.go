@@ -5,6 +5,7 @@ import (
     "fmt"
     "bufio"
     "os"
+    "strings"
 
 )
 
@@ -30,6 +31,7 @@ func NewClient(serverAddr string) (*Client, error) {
 func (c *Client) Start() {
     fmt.Println("Client is running")
     go c.Listen()
+    defer c.serverConn.Close()
 
     c.clientRunning = true
 
@@ -39,6 +41,13 @@ func (c *Client) Start() {
         if err != nil {
             fmt.Println("Client io error ", newMessage)
             continue
+        }
+
+        trimedMessage := strings.Trim(newMessage, "\n")
+
+        if trimedMessage == "exit" {
+            os.Exit(3)
+
         }
 
         c.serverConn.Write([]byte(newMessage))
