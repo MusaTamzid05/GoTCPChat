@@ -25,8 +25,10 @@ func NewClient(serverAddr string) (*Client, error) {
     return &client, nil
 }
 
+
 func (c *Client) Start() {
     fmt.Println("Client is running")
+    go c.Listen()
 
     clientRunning := true
 
@@ -42,6 +44,25 @@ func (c *Client) Start() {
 
 
 
+
+    }
+
+}
+
+
+func (c* Client) Listen() {
+    connectionRunning := true
+
+    for connectionRunning {
+        newMessage, err := bufio.NewReader(c.serverConn).ReadString('\n')
+
+        if err != nil {
+            fmt.Println(err)
+            connectionRunning = false
+
+        }
+
+        fmt.Println(newMessage)
 
     }
 

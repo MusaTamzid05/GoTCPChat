@@ -9,6 +9,7 @@ import (
 type Server struct {
     addr string
     Listener net.Listener
+    clients []net.Conn
 
 }
 
@@ -43,13 +44,14 @@ func (s *Server) Start() {
             continue
         }
 
-        go s.handleClient(connection)
+        s.clients = append(s.clients, connection)
+        go s.handleClient(connection, len(s.clients) - 1)
 
 
     }
 }
 
-func (s *Server) handleClient(conn net.Conn) {
+func (s *Server) handleClient(conn net.Conn, clientIndex int) {
     clientRunning := true
 
     for clientRunning {
@@ -70,6 +72,28 @@ func (s *Server) handleClient(conn net.Conn) {
         }
 
         fmt.Print(clientMessage)
+
+        for index, client := range s.clients {
+
+            if index == clientIndex {
+                continue
+            }
+
+
+            broadcastMessage := fmt.Sprintf("client-%d - %s", clientIndex, clientMessage)
+            _, err = client.Write([]byte(broadcastMessage))
+
+            if err != nil {
+                fmt.Println("Broadcast error " , err)
+            } else {
+                fmt.Println("Broadcast success")
+
+            }
+
+
+
+
+        }
 
     }
 
