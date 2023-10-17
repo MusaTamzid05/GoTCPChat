@@ -41,6 +41,7 @@ func (c *Client) Start() {
 
 
     for c.clientRunning {
+        //fmt.Print(c.name + ": ")
         newMessage, err := bufio.NewReader(os.Stdin).ReadString('\n')
 
         if err != nil {
@@ -86,7 +87,7 @@ func (c* Client) Listen() {
         }
 
         newMessage := chatData.String()
-        fmt.Println(newMessage)
+        fmt.Print(newMessage)
 
     }
 
