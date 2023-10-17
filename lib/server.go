@@ -3,7 +3,8 @@ package lib
 import (
     "net"
     "fmt"
-    "bufio"
+    //"bufio"
+    "encoding/gob"
 )
 
 type Server struct {
@@ -53,10 +54,14 @@ func (s *Server) Start() {
 
 func (s *Server) handleClient(conn net.Conn, clientIndex int) {
     clientRunning := true
+    decoder := gob.NewDecoder(conn)
+
 
     for clientRunning {
 
-        clientMessage , err := bufio.NewReader(conn).ReadString('\n')
+        var chatData ChatData
+        err := decoder.Decode(&chatData)
+
 
         if err != nil {
 
@@ -78,7 +83,7 @@ func (s *Server) handleClient(conn net.Conn, clientIndex int) {
 
         }
 
-        fmt.Print(clientMessage)
+        fmt.Print(chatData.String())
 
         for index, client := range s.clients {
 
@@ -86,9 +91,11 @@ func (s *Server) handleClient(conn net.Conn, clientIndex int) {
                 continue
             }
 
+            encoder := gob.NewEncoder(client)
+            err = encoder.Encode(chatData)
 
-            broadcastMessage := fmt.Sprintf("client-%d - %s", clientIndex, clientMessage)
-            _, err = client.Write([]byte(broadcastMessage))
+
+
 
             if err != nil {
                 fmt.Println("Broadcast error " , err)

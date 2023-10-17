@@ -6,16 +6,18 @@ import (
     "bufio"
     "os"
     "strings"
+    "encoding/gob"
 
 )
 
 type Client struct {
     serverConn net.Conn
     clientRunning bool
+    name string
 }
 
-func NewClient(serverAddr string) (*Client, error) {
-    client := Client{clientRunning: false}
+func NewClient(serverAddr, name string) (*Client, error) {
+    client := Client{clientRunning: false, name: name}
 
     connection, err := net.Dial("tcp", serverAddr)
 
@@ -35,6 +37,9 @@ func (c *Client) Start() {
 
     c.clientRunning = true
 
+    encoder := gob.NewEncoder(c.serverConn)
+
+
     for c.clientRunning {
         newMessage, err := bufio.NewReader(os.Stdin).ReadString('\n')
 
@@ -50,7 +55,13 @@ func (c *Client) Start() {
 
         }
 
-        c.serverConn.Write([]byte(newMessage))
+        chatData := MakeChatData(c.name, newMessage)
+        err = encoder.Encode(chatData)
+
+        if err != nil {
+            fmt.Println("client encoder error " , err)
+        }
+
 
 
 
@@ -63,14 +74,18 @@ func (c *Client) Start() {
 func (c* Client) Listen() {
 
     for c.clientRunning {
-        newMessage, err := bufio.NewReader(c.serverConn).ReadString('\n')
+        decoder := gob.NewDecoder(c.serverConn)
+
+        var chatData ChatData
+        err := decoder.Decode(&chatData)
 
         if err != nil {
-            fmt.Println(err)
+            fmt.Println("Client listen error ", err)
             c.clientRunning = false
 
         }
 
+        newMessage := chatData.String()
         fmt.Println(newMessage)
 
     }

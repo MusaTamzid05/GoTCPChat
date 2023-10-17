@@ -11,6 +11,7 @@ func main() {
     addr := ":8080"
 
     serverFlagPtr := flag.Bool("server", true, "Flag for server")
+    clientNameFlagPtr := flag.String("client", "", "The client user name")
     flag.Parse()
 
     serverFlag := *serverFlagPtr
@@ -29,9 +30,14 @@ func main() {
 
     } 
 
+    if *clientNameFlagPtr == "" {
+        fmt.Println("Client needs a client name.")
+        os.Exit(4)
+    }
 
 
-    client, err := lib.NewClient(addr)
+
+    client, err := lib.NewClient(addr, *clientNameFlagPtr)
 
 
     if err != nil {
