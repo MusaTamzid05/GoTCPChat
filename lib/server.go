@@ -62,6 +62,13 @@ func (s *Server) handleClient(conn net.Conn, clientIndex int) {
 
             if err.Error() == "EOF" {
                 fmt.Println("Connection close")
+
+                if len(s.clients) == 1 {
+                    s.clients = []net.Conn{}
+                } else {
+                    s.clients = append(s.clients[:clientIndex], s.clients[clientIndex+1:]...)
+                }
+
             } else {
                 fmt.Println(err)
             }
