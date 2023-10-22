@@ -3,9 +3,9 @@ package lib
 import (
     "net"
     "fmt"
-    "bufio"
-    "os"
-    "strings"
+    //"bufio"
+    //"os"
+    //"strings"
     "encoding/gob"
 
 	"fyne.io/fyne/v2/data/binding"
@@ -38,6 +38,7 @@ func (c *Client) SetMessageData(messageData binding.UntypedList) {
 }
 
 
+/*
 func (c *Client) Start() {
     fmt.Println("Client is running")
     go c.Listen()
@@ -78,9 +79,11 @@ func (c *Client) Start() {
     }
 
 }
+*/
 
 
 func (c* Client) Listen() {
+    c.clientRunning = true
 
     for c.clientRunning {
         decoder := gob.NewDecoder(c.serverConn)
@@ -111,4 +114,8 @@ func (c *Client) Send(message string) {
         fmt.Println("client encoder error " , err)
     }
 
+}
+
+func (c *Client) Close() {
+    c.serverConn.Close()
 }

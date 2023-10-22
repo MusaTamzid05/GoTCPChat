@@ -51,7 +51,9 @@ func main() {
         os.Exit(2)
     }
 
-    go client.Start()
+    //go client.Start()
+    go client.Listen()
+    defer client.Close()
 
     mainApp := app.New()
     mainWindow := mainApp.NewWindow(*clientNameFlagPtr)
