@@ -5,6 +5,12 @@ import (
     "net1_recording/lib"
     "os"
     "flag"
+
+    "fyne.io/fyne/v2"
+    "fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/widget"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 )
 
 func main() {
@@ -45,7 +51,67 @@ func main() {
         os.Exit(2)
     }
 
-    client.Start()
+    go client.Start()
+
+    mainApp := app.New()
+    mainWindow := mainApp.NewWindow(*clientNameFlagPtr)
+
+    mainWindow.Resize(fyne.NewSize(300, 400))
+
+    textField := widget.NewEntry()
+    textField.PlaceHolder = "Enter Message"
+
+    messageData := binding.NewUntypedList()
+
+    messageListWidget := widget.NewListWithData(
+        messageData,
+        func () fyne.CanvasObject {
+            return container.NewBorder(
+                nil,
+                nil,
+                nil,
+                nil,
+                widget.NewLabel(""),
+            )
+        },
+        func (di binding.DataItem, o fyne.CanvasObject) {
+            ctr := o.(*fyne.Container)
+            label := ctr.Objects[0].(*widget.Label)
+            value, _ := di.(binding.Untyped).Get()
+            label.SetText(value.(string))
+
+        },
+    )
+
+
+    client.SetMessageData(messageData)
+
+    mainWindow.SetContent(
+        container.NewBorder(
+            nil,
+            container.NewBorder(
+                nil,
+                nil,
+                nil,
+                widget.NewButton("Send", func() {
+                    fmt.Println("Send pressed")
+                    message := textField.Text
+                    client.Send(message)
+                    textField.SetText("")
+
+                }),
+                textField,
+
+            ),
+            nil,
+            nil,
+            messageListWidget,
+
+        ),
+    )
+
+    mainWindow.ShowAndRun()
+
 
 }
 

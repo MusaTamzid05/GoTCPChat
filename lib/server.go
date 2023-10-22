@@ -54,12 +54,12 @@ func (s *Server) Start() {
 
 func (s *Server) handleClient(conn net.Conn, clientIndex int) {
     clientRunning := true
-    decoder := gob.NewDecoder(conn)
 
 
     for clientRunning {
 
         var chatData ChatData
+        decoder := gob.NewDecoder(conn)
         err := decoder.Decode(&chatData)
 
 
@@ -83,18 +83,15 @@ func (s *Server) handleClient(conn net.Conn, clientIndex int) {
 
         }
 
-        fmt.Print(chatData.String())
+        fmt.Println(chatData.String())
 
-        for index, client := range s.clients {
+        for index  , client := range s.clients {
 
-            if index == clientIndex {
-                continue
-            }
+
+            fmt.Println(index)
 
             encoder := gob.NewEncoder(client)
             err = encoder.Encode(chatData)
-
-
 
 
             if err != nil {

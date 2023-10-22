@@ -8,12 +8,16 @@ import (
     "strings"
     "encoding/gob"
 
+	"fyne.io/fyne/v2/data/binding"
+
 )
 
 type Client struct {
     serverConn net.Conn
     clientRunning bool
     name string
+
+    messageData binding.UntypedList
 }
 
 func NewClient(serverAddr, name string) (*Client, error) {
@@ -27,6 +31,10 @@ func NewClient(serverAddr, name string) (*Client, error) {
 
     client.serverConn = connection
     return &client, nil
+}
+
+func (c *Client) SetMessageData(messageData binding.UntypedList) {
+    c.messageData = messageData
 }
 
 
@@ -87,8 +95,20 @@ func (c* Client) Listen() {
         }
 
         newMessage := chatData.String()
-        fmt.Print(newMessage)
+        fmt.Println(newMessage)
+        c.messageData.Append(newMessage)
 
+    }
+}
+
+func (c *Client) Send(message string) {
+    encoder := gob.NewEncoder(c.serverConn)
+
+    chatData := MakeChatData(c.name, message)
+    err := encoder.Encode(&chatData)
+
+    if err != nil {
+        fmt.Println("client encoder error " , err)
     }
 
 }

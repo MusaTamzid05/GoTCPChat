@@ -12,5 +12,5 @@ func MakeChatData(name, message string) ChatData {
 }
 
 func (c ChatData) String() string {
-    return c.Name + " : " + c.Message
+    return c.Name + " : " + c.Message 
 }
